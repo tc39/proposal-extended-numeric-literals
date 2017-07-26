@@ -98,7 +98,7 @@ One option would be to allow similar literal prefixes or suffixes on array and o
 
 ```js
 // If we choose prefix
-mylist[1, 2, 3]
+// Array literals don't work
 mymap{["foo"]: 1, [[bar]]: 2}
 
 // If we choose suffix

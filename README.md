@@ -55,7 +55,7 @@ There is a possibility of including some sort of object for caching, as tagged t
 
 ### Scoping variants
 
-The tough part of the design of integer iterals is scoping. Where do you look up what tne numeric suffix means?
+The tough part of the design of integer iterals is scoping. Where do you look up what the numeric suffix means?
 
 #### Purely lexical
 

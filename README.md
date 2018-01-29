@@ -81,4 +81,4 @@ mymap{["foo"]: 1, [[bar]]: 2}
 
 In the earlier es-discuss thread, a `#` was used between the name of the literal and the main literal itself; this seems unnecessary syntactically as long as no line break is permitted (but we could still do it for aesthetic reasons).
 
-Extended map/array literals may be better candidates for using plain old lexical scope than numeric literals, as a result of the whole literal just being bigger.
+Extended map or array literals seem to face a different set of syntactic constraints and a larger API surface. It seems that additions here can go type-by-type, as things started with template literals, and this proposal adds numeric literals; there is no dependency between them, and no difficulty in numeric literals following the patterns of template literals. For that reason, they are left for a follow-on proposal.

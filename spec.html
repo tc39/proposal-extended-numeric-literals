@@ -1,0 +1,111 @@
+<pre class="metadata">
+title: Extended Numeric Literals
+status: proposal
+stage: 1
+location: https://tc39.github.io/proposal-extended-numeric-literals/
+copyright: false
+contributors: Daniel Ehrenberg
+</pre>
+<emu-intro id="sec-intro">
+  <h1>Introduction</h1>
+
+  <p>This document is a Stage 1 draft specification for extended numeric literals in JavaScript. For a high-level overview of the design, motivation and semantics, see <a href="https://github.com/tc39/proposal-extended-numeric-literals/">the explainer document</a>. This document focuses on exact specification mechanics.</p>
+</emu-intro>
+
+<emu-clause id="sec-syntax">
+  <h1>Syntax</h1>
+
+  <emu-grammar>
+      PrimaryExpression[Yield, Await] :
+        `this`
+        IdentifierReference[?Yield, ?Await]
+        Literal
+        ArrayLiteral[?Yield, ?Await]
+        ObjectLiteral[?Yield, ?Await]
+        FunctionExpression
+        ClassExpression[?Yield, ?Await]
+        GeneratorExpression
+        AsyncFunctionExpression
+        RegularExpressionLiteral
+        TemplateLiteral[?Yield, ?Await, ~Tagged]
+        CoverParenthesizedExpressionAndArrowParameterList[?Yield, ?Await] #parencover
+        <ins>ExtendedNumericLiteral</ins>
+
+     ExtendedNumericLiteral ::
+       NumericLiteral `_` IdentifierPart
+  </emu-grammar>
+</emu-clause>
+
+<emu-clause id="sec-semantics">
+  <h1>Semantics</h1>
+
+  <emu-clause id="sec-runtime-semantics">
+    <h1>Runtime Semantics: Evaluation</h1>
+
+    <emu-grammar>
+     ExtendedNumericLiteral ::
+       NumericLiteral `_` IdentifierPart
+    </emu-grammar>
+    <emu-alg>
+      1. Let _string_ be a String consisting of the code units which constitute |NumericLiteral|.
+      1. let _number_ be the result of evaluating |NumericLiteral|.
+      1. Let _realm_ be the current Realm Record.
+      1. Let _literalRegistry_ be _realm_.[[LiteralMap]].
+      1. For each element _e_ of _literalRegistry_, do
+        1. If ! SameValue(_e_.[[String]], _string_) is *true*, then
+          1. Return _e_.[[Object]].
+      1. Let _object_ be ! ObjectCreate(*null*).
+      1. Perform ! CreateDataProperty(_object_, `"string"`, _string_).
+      1. Perform ! CreateDataProperty(_object_, `"number"`, _number_).
+      1. Perform SetIntegrityLevel(_object_, `"frozen"`).
+      1. Append the Record{[[String]]: _string_, [[Object]]: _object_} to _literalRegistry_.
+      1. Let _ident_ be `_` |IdentifierPart| parsed as an |Identifer|.  <!-- TODO(littledan): Redo this text in an acceptable way. -->
+      1. Let _tag_ be the result of evaluating _ident_.
+      1. Return ? Call(*undefined*, _tag_, _object_).
+    </emu-alg>
+  </emu-clause>
+
+  <!-- es6num="8.2" -->
+  <emu-clause id="sec-code-realms">
+    <h1>Realms</h1>
+    <emu-table id="table-21" caption="Realm Record Fields">
+      <table>
+        <tbody>
+        <tr>
+          <th>
+            Field Name
+          </th>
+          <th>
+            Value
+          </th>
+          <th>
+            Meaning
+          </th>
+        </tr>
+        <tr>
+          <td>
+            [[TemplateMap]]
+          </td>
+          <td>
+            A List of Record { [[Strings]]: List, [[Array]]: Object}.
+          </td>
+          <td>
+            Template objects are canonicalized separately for each realm using its Realm Record's [[TemplateMap]]. Each [[Strings]] value is a List containing, in source text order, the raw String values of a |TemplateLiteral| that has been evaluated. The associated [[Array]] value is the corresponding template object that is passed to a tag function.
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <ins>[[LiteralMap]]</ins>
+          </td>
+          <td>
+            <ins>A List of Record { [[String]]: String, [[Object]]: Object}.</ins>
+          </td>
+          <td>
+            <ins>Literal objects are canonicalized separately for each realm using its Realm Record's [[TemplateMap]]. Each [[String]] value is a String of the source text for the numeric part of the |ExtendedNumericLiteral|. The associated [[Object]] value is the corresponding literal object that is passed to a tag function.</ins>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </emu-table>
+  </emu-clause>
+</emu-clause>

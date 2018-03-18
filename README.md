@@ -53,7 +53,7 @@ Similarly to template literals, extended numeric literals desugar into passing a
 
 Example:
 
-`3_px` desugars into `_px(Object.freeze({number: 3, string, "3"}))`
+`3_px` desugars into `_px(Object.freeze({number: 3, string: "3"}))`
 
 ### Caching
 

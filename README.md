@@ -20,7 +20,7 @@ One side to all of these is operator overloading, and another side is the litera
 
 ### CSS Typed Object Model
 
-In the [CSS Typed Object Model](https://drafts.css-houdini.org/css-typed-om/#numeric-factory), there are objects which represent lengths in pixels, inches, and several other units. The current syntax for creating such an instance is `CSS.px(10)`. With this proposal, the syntax could instead be just like inside of CSS itself, as `10_px`. This is another case that would benefit from operator overloading, but also be useful without it.
+In the [CSS Typed Object Model](https://drafts.css-houdini.org/css-typed-om/#numeric-factory), there are objects which represent lengths in pixels, inches, and several other units. The current syntax for creating such an instance is `CSS.px(10)`. With this proposal, the syntax could instead be just like inside of CSS itself, as `10~px`. This is another case that would benefit from operator overloading, but also be useful without it.
 
 Example:
 

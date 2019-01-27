@@ -120,7 +120,11 @@ Search.prototype.search = function (searchString) {
     
     for (var i = 0; i < this.biblio.length; i++) {
       var entry = this.biblio[i];
-  
+      if (!entry.key) {
+        // biblio entries without a key aren't searchable
+        continue;
+      }
+
       var match = fuzzysearch(searchString, entry.key);
       if (match) {
         results.push({ entry: entry, match: match });
@@ -1020,11 +1024,11 @@ emu-note > div.note-contents {
   flex-shrink: 1;
 }
 
-emu-note > div.note-contents > p:first-child {
+emu-note > div.note-contents > p:first-of-type {
   margin-top: 0;
 }
 
-emu-note > div.note-contents > p:last-child {
+emu-note > div.note-contents > p:last-of-type {
   margin-bottom: 0;
 }
 
@@ -1057,19 +1061,16 @@ emu-production {
     margin-left: 5ex;
 }
 
-
 emu-grammar.inline, emu-production.inline,
-emu-grammar.inline emu-production emu-rhs, emu-production.inline emu-rhs {
-  display: inline;
+emu-grammar.inline emu-production emu-rhs, emu-production.inline emu-rhs,
+emu-grammar[collapsed] emu-production emu-rhs, emu-production[collapsed] emu-rhs {
+    display: inline;
+    padding-left: 1ex;
+    margin-left: 0;
 }
 
 emu-grammar[collapsed] emu-production, emu-production[collapsed] {
     margin: 0;
-}
-
-emu-grammar[collapsed] emu-production emu-rhs, emu-production[collapsed] emu-rhs {
-    display: inline;
-    padding-left: 1ex;
 }
 
 emu-constraints {
@@ -1326,6 +1327,21 @@ ins.block, del.block,
 emu-production > ins, emu-production > del,
 emu-grammar > ins, emu-grammar > del {
   display: block;
+}
+emu-rhs > ins, emu-rhs > del { 
+  display: inline;
+}
+
+tr.ins > td > ins {
+  border-bottom: none;
+}
+
+tr.ins > td {
+  background-color: #e0f8e0;
+}
+
+tr.del > td {
+  background-color: #fee;
 }
 
 /* Menu Styles */
@@ -1779,7 +1795,13 @@ li.menu-search-result-term:before {
   text-align: right;
   padding-right: 5px;
 }
-</style></head><body><div id="menu-toggle">☰</div><div id="menu-spacer"></div><div id="menu"><div id="menu-search"><input type="text" id="menu-search-box" placeholder="Search..."><div id="menu-search-results" class="inactive"></div></div><div id="menu-pins"><div class="menu-pane-header">Pins</div><ul id="menu-pins-list"></ul></div><div class="menu-pane-header">Table of Contents</div><div id="menu-toc"><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-intro" title="Introduction">Introduction</a></li><li><span class="item-toggle-none"></span><a href="#sec-syntax" title="Syntax"><span class="secnum">1</span> Syntax</a></li><li><span class="item-toggle">◢</span><a href="#sec-semantics" title="Semantics"><span class="secnum">2</span> Semantics</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-runtime-semantics" title="Runtime Semantics: Evaluation"><span class="secnum">2.1</span> RS: Evaluation</a></li><li><span class="item-toggle-none"></span><a href="#sec-code-realms" title="Realms"><span class="secnum">2.2</span> Realms</a></li></ol></li></ol></div></div><div id="spec-container"><h1 class="version first">Stage 1 Draft / January 29, 2018</h1><h1 class="title">Extended Numeric Literals</h1>
+
+@media print {
+  #menu-toggle {
+    display: none; 
+  }
+}
+</style></head><body><div id="menu-toggle">☰</div><div id="menu-spacer"></div><div id="menu"><div id="menu-search"><input type="text" id="menu-search-box" placeholder="Search..."><div id="menu-search-results" class="inactive"></div></div><div id="menu-pins"><div class="menu-pane-header">Pins</div><ul id="menu-pins-list"></ul></div><div class="menu-pane-header">Table of Contents</div><div id="menu-toc"><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-intro" title="Introduction">Introduction</a></li><li><span class="item-toggle-none"></span><a href="#sec-syntax" title="Syntax"><span class="secnum">1</span> Syntax</a></li><li><span class="item-toggle">◢</span><a href="#sec-semantics" title="Semantics"><span class="secnum">2</span> Semantics</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-runtime-semantics" title="Runtime Semantics: Evaluation"><span class="secnum">2.1</span> RS: Evaluation</a></li><li><span class="item-toggle-none"></span><a href="#sec-code-realms" title="Realms"><span class="secnum">2.2</span> Realms</a></li></ol></li></ol></div></div><div id="spec-container"><h1 class="version first">Stage 1 Draft / January 27, 2019</h1><h1 class="title">Extended Numeric Literals</h1>
 <emu-intro id="sec-intro">
   <h1>Introduction</h1>
 
@@ -1801,11 +1823,11 @@ li.menu-search-result-term:before {
     <emu-rhs a="ad589bb4"><emu-nt><a href="https://tc39.github.io/ecma262/#prod-AsyncFunctionExpression">AsyncFunctionExpression</a></emu-nt></emu-rhs>
     <emu-rhs a="31b672e8"><emu-nt><a href="https://tc39.github.io/ecma262/#prod-RegularExpressionLiteral">RegularExpressionLiteral</a></emu-nt></emu-rhs>
     <emu-rhs a="493a5b25"><emu-nt params="?Yield, ?Await, ~Tagged"><a href="https://tc39.github.io/ecma262/#prod-TemplateLiteral">TemplateLiteral</a><emu-mods><emu-params>[?Yield, ?Await, ~Tagged]</emu-params></emu-mods></emu-nt></emu-rhs>
-    <emu-rhs a="parencover"><emu-nt params="?Yield, ?Await"><a href="https://tc39.github.io/ecma262/#prod-CoverParenthesizedExpressionAndArrowParameterList">CoverParenthesizedExpressionAndArrowParameterList</a><emu-mods><emu-params>[?Yield, ?Await]</emu-params></emu-mods></emu-nt></emu-rhs><ins>
-    <emu-rhs a="6793593d"><emu-nt id="_ref_6"><a href="#prod-ExtendedNumericLiteral">ExtendedNumericLiteral</a></emu-nt></emu-rhs>
-</ins></emu-production>
+    <emu-rhs a="parencover"><emu-nt params="?Yield, ?Await"><a href="https://tc39.github.io/ecma262/#prod-CoverParenthesizedExpressionAndArrowParameterList">CoverParenthesizedExpressionAndArrowParameterList</a><emu-mods><emu-params>[?Yield, ?Await]</emu-params></emu-mods></emu-nt></emu-rhs>
+    <ins><emu-rhs a="6793593d"><emu-nt id="_ref_6"><a href="#prod-ExtendedNumericLiteral">ExtendedNumericLiteral</a></emu-nt></emu-rhs></ins>
+</emu-production>
 <emu-production name="ExtendedNumericLiteral" type="lexical" id="prod-ExtendedNumericLiteral">
-    <emu-nt><a href="#prod-ExtendedNumericLiteral">ExtendedNumericLiteral</a></emu-nt><emu-geq>::</emu-geq><emu-rhs a="3d8fe6d9"><emu-nt><a href="https://tc39.github.io/ecma262/#prod-NumericLiteral">NumericLiteral</a></emu-nt><emu-t>_</emu-t><emu-nt><a href="https://tc39.github.io/ecma262/#prod-IdentifierPart">IdentifierPart</a></emu-nt></emu-rhs>
+    <emu-nt><a href="#prod-ExtendedNumericLiteral">ExtendedNumericLiteral</a></emu-nt><emu-geq>::</emu-geq><emu-rhs a="7cb86780"><emu-nt><a href="https://tc39.github.io/ecma262/#prod-NumericLiteral">NumericLiteral</a></emu-nt><emu-t>~</emu-t><emu-nt><a href="https://tc39.github.io/ecma262/#prod-IdentifierName">IdentifierName</a></emu-nt></emu-rhs>
 </emu-production></emu-grammar>
 </emu-clause>
 
@@ -1816,9 +1838,9 @@ li.menu-search-result-term:before {
     <h1><span class="secnum">2.1</span>Runtime Semantics: Evaluation</h1>
 
     <emu-grammar><emu-production name="ExtendedNumericLiteral" type="lexical">
-    <emu-nt><a href="#prod-ExtendedNumericLiteral">ExtendedNumericLiteral</a></emu-nt><emu-geq>::</emu-geq><emu-rhs a="3d8fe6d9"><emu-nt><a href="https://tc39.github.io/ecma262/#prod-NumericLiteral">NumericLiteral</a></emu-nt><emu-t>_</emu-t><emu-nt><a href="https://tc39.github.io/ecma262/#prod-IdentifierPart">IdentifierPart</a></emu-nt></emu-rhs>
+    <emu-nt><a href="#prod-ExtendedNumericLiteral">ExtendedNumericLiteral</a></emu-nt><emu-geq>::</emu-geq><emu-rhs a="6e5a0a42"><emu-nt><a href="https://tc39.github.io/ecma262/#prod-NumericLiteral">NumericLiteral</a></emu-nt><emu-t>~</emu-t><emu-nt><a href="https://tc39.github.io/ecma262/#prod-IdentifierPart">IdentifierPart</a></emu-nt></emu-rhs>
 </emu-production></emu-grammar>
-    <emu-alg><ol><li>Let <var>string</var> be a String consisting of the code units which constitute <emu-nt><a href="https://tc39.github.io/ecma262/#prod-NumericLiteral">NumericLiteral</a></emu-nt>.</li><li>let <var>number</var> be the result of evaluating <emu-nt><a href="https://tc39.github.io/ecma262/#prod-NumericLiteral">NumericLiteral</a></emu-nt>.</li><li>Let <var>realm</var> be <emu-xref href="#current-realm"><a href="https://tc39.github.io/ecma262/#current-realm">the current Realm Record</a></emu-xref>.</li><li>Let <var>literalRegistry</var> be <var>realm</var>.[[LiteralMap]].</li><li>For each element <var>e</var> of <var>literalRegistry</var>, do<ol><li>If !&nbsp;<emu-xref aoid="SameValue" id="_ref_0"><a href="https://tc39.github.io/ecma262/#sec-samevalue">SameValue</a></emu-xref>(<var>e</var>.[[String]], <var>string</var>) is <emu-val>true</emu-val>, then<ol><li>Return <var>e</var>.[[Object]].</li></ol></li></ol></li><li>Let <var>object</var> be !&nbsp;<emu-xref aoid="ObjectCreate" id="_ref_1"><a href="https://tc39.github.io/ecma262/#sec-objectcreate">ObjectCreate</a></emu-xref>(<emu-val>null</emu-val>).</li><li>Perform !&nbsp;<emu-xref aoid="CreateDataProperty" id="_ref_2"><a href="https://tc39.github.io/ecma262/#sec-createdataproperty">CreateDataProperty</a></emu-xref>(<var>object</var>, <code>"string"</code>, <var>string</var>).</li><li>Perform !&nbsp;<emu-xref aoid="CreateDataProperty" id="_ref_3"><a href="https://tc39.github.io/ecma262/#sec-createdataproperty">CreateDataProperty</a></emu-xref>(<var>object</var>, <code>"number"</code>, <var>number</var>).</li><li>Perform <emu-xref aoid="SetIntegrityLevel" id="_ref_4"><a href="https://tc39.github.io/ecma262/#sec-setintegritylevel">SetIntegrityLevel</a></emu-xref>(<var>object</var>, <code>"frozen"</code>).</li><li>Append the <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.github.io/ecma262/#sec-list-and-record-specification-type">Record</a></emu-xref>{[[String]]: <var>string</var>, [[Object]]: <var>object</var>} to <var>literalRegistry</var>.</li><li>Let <var>ident</var> be <code>_</code> <emu-nt><a href="https://tc39.github.io/ecma262/#prod-IdentifierPart">IdentifierPart</a></emu-nt> parsed as an <emu-nt>Identifer</emu-nt>.  <!-- TODO(littledan): Redo this text in an acceptable way. --></li><li>Let <var>tag</var> be the result of evaluating <var>ident</var>.</li><li>Return ?&nbsp;<emu-xref aoid="Call" id="_ref_5"><a href="https://tc39.github.io/ecma262/#sec-call">Call</a></emu-xref>(<emu-val>undefined</emu-val>, <var>tag</var>, <var>object</var>).
+    <emu-alg><ol><li>Let <var>string</var> be a String consisting of the code units which constitute <emu-nt><a href="https://tc39.github.io/ecma262/#prod-NumericLiteral">NumericLiteral</a></emu-nt>.</li><li>let <var>number</var> be the result of evaluating <emu-nt><a href="https://tc39.github.io/ecma262/#prod-NumericLiteral">NumericLiteral</a></emu-nt>.</li><li>Let <var>realm</var> be <emu-xref href="#current-realm"><a href="https://tc39.github.io/ecma262/#current-realm">the current Realm Record</a></emu-xref>.</li><li>Let <var>literalRegistry</var> be <var>realm</var>.[[LiteralMap]].</li><li>For each element <var>e</var> of <var>literalRegistry</var>, do<ol><li>If !&nbsp;<emu-xref aoid="SameValue" id="_ref_0"><a href="https://tc39.github.io/ecma262/#sec-samevalue">SameValue</a></emu-xref>(<var>e</var>.[[String]], <var>string</var>) is <emu-val>true</emu-val>, then<ol><li>Return <var>e</var>.[[Object]].</li></ol></li></ol></li><li>Let <var>object</var> be !&nbsp;<emu-xref aoid="ObjectCreate" id="_ref_1"><a href="https://tc39.github.io/ecma262/#sec-objectcreate">ObjectCreate</a></emu-xref>(<emu-val>null</emu-val>).</li><li>Perform !&nbsp;<emu-xref aoid="CreateDataProperty" id="_ref_2"><a href="https://tc39.github.io/ecma262/#sec-createdataproperty">CreateDataProperty</a></emu-xref>(<var>object</var>, <code>"string"</code>, <var>string</var>).</li><li>Perform !&nbsp;<emu-xref aoid="CreateDataProperty" id="_ref_3"><a href="https://tc39.github.io/ecma262/#sec-createdataproperty">CreateDataProperty</a></emu-xref>(<var>object</var>, <code>"number"</code>, <var>number</var>).</li><li>Perform <emu-xref aoid="SetIntegrityLevel" id="_ref_4"><a href="https://tc39.github.io/ecma262/#sec-setintegritylevel">SetIntegrityLevel</a></emu-xref>(<var>object</var>, <code>"frozen"</code>).</li><li>Append the <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.github.io/ecma262/#sec-list-and-record-specification-type">Record</a></emu-xref>{[[String]]: <var>string</var>, [[Object]]: <var>object</var>} to <var>literalRegistry</var>.</li><li>Let <var>ident</var> be <code>numeric__</code> <emu-nt><a href="https://tc39.github.io/ecma262/#prod-IdentifierPart">IdentifierPart</a></emu-nt> parsed as an <emu-nt>Identifer</emu-nt>.  <!-- TODO(littledan): Redo this text in an acceptable way. --></li><li>Let <var>tag</var> be the result of evaluating <var>ident</var>.</li><li>Return ?&nbsp;<emu-xref aoid="Call" id="_ref_5"><a href="https://tc39.github.io/ecma262/#sec-call">Call</a></emu-xref>(<emu-val>undefined</emu-val>, <var>tag</var>, <var>object</var>).
     </li></ol></emu-alg>
   </emu-clause>
 
@@ -1844,27 +1866,14 @@ li.menu-search-result-term:before {
         </tr>
         <tr>
           <td>
-            [[TemplateMap]]
-          
-          </td>
-          <td>
-            A <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.github.io/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref> of <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.github.io/ecma262/#sec-list-and-record-specification-type">Record</a></emu-xref> { [[Strings]]: <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.github.io/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref>, [[Array]]: Object}.
-          
-          </td>
-          <td>
-            Template objects are canonicalized separately for each <emu-xref href="#realm"><a href="https://tc39.github.io/ecma262/#realm">realm</a></emu-xref> using its <emu-xref href="#realm-record"><a href="https://tc39.github.io/ecma262/#realm-record">Realm Record</a></emu-xref>'s [[TemplateMap]]. Each [[Strings]] value is a <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.github.io/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref> containing, in source text order, the raw String values of a <emu-nt><a href="https://tc39.github.io/ecma262/#prod-TemplateLiteral">TemplateLiteral</a></emu-nt> that has been evaluated. The associated [[Array]] value is the corresponding template object that is passed to a tag function.
-          
-          </td>
-        </tr>
-        <tr>
-          <td>
             <ins>[[LiteralMap]]</ins>
           </td>
           <td>
-            <ins>A <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.github.io/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref> of <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.github.io/ecma262/#sec-list-and-record-specification-type">Record</a></emu-xref> { [[String]]: String, [[Object]]: Object}.</ins>
+            <ins>A <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.github.io/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref> of <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.github.io/ecma262/#sec-list-and-record-specification-type">Record</a></emu-xref> { [[Site]]: Parse Node, [[Object]]: Object}.</ins>
           </td>
           <td>
-            <ins>Literal objects are canonicalized separately for each <emu-xref href="#realm"><a href="https://tc39.github.io/ecma262/#realm">realm</a></emu-xref> using its <emu-xref href="#realm-record"><a href="https://tc39.github.io/ecma262/#realm-record">Realm Record</a></emu-xref>'s [[TemplateMap]]. Each [[String]] value is a String of the source text for the numeric part of the <emu-nt id="_ref_7"><a href="#prod-ExtendedNumericLiteral">ExtendedNumericLiteral</a></emu-nt>. The associated [[Object]] value is the corresponding literal object that is passed to a tag function.</ins>
+           <ins>Literal objects are canonicalized separately for each <emu-xref href="#realm"><a href="https://tc39.github.io/ecma262/#realm">realm</a></emu-xref> using its <emu-xref href="#realm-record"><a href="https://tc39.github.io/ecma262/#realm-record">Realm Record</a></emu-xref>'s [[TemplateMap]]. Each [[Site]] value is a Parse Node the numeric part of the <emu-nt id="_ref_7"><a href="#prod-ExtendedNumericLiteral">ExtendedNumericLiteral</a></emu-nt>. The associated [[Object]] value is the corresponding literal object that is passed to a numeric literal function.</ins>
+           <emu-note><span class="note">Note</span><div class="note-contents"><ins>Once a Parse Node becomes unreachable, the corresponding [[Object]] is also unreachable, and it would be unobservable if an implementation removed the pair from the [[LiteralMap]] list.</ins></div></emu-note>
           </td>
         </tr>
         </tbody>

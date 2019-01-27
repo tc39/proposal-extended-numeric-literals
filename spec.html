@@ -32,7 +32,7 @@ contributors: Daniel Ehrenberg
         <ins>ExtendedNumericLiteral</ins>
 
      ExtendedNumericLiteral ::
-       NumericLiteral `_` IdentifierPart
+       NumericLiteral `~` IdentifierName
   </emu-grammar>
 </emu-clause>
 
@@ -44,7 +44,7 @@ contributors: Daniel Ehrenberg
 
     <emu-grammar>
      ExtendedNumericLiteral ::
-       NumericLiteral `_` IdentifierPart
+       NumericLiteral `~` IdentifierPart
     </emu-grammar>
     <emu-alg>
       1. Let _string_ be a String consisting of the code units which constitute |NumericLiteral|.
@@ -59,7 +59,7 @@ contributors: Daniel Ehrenberg
       1. Perform ! CreateDataProperty(_object_, `"number"`, _number_).
       1. Perform SetIntegrityLevel(_object_, `"frozen"`).
       1. Append the Record{[[String]]: _string_, [[Object]]: _object_} to _literalRegistry_.
-      1. Let _ident_ be `_` |IdentifierPart| parsed as an |Identifer|.  <!-- TODO(littledan): Redo this text in an acceptable way. -->
+      1. Let _ident_ be `numeric__` |IdentifierPart| parsed as an |Identifer|.  <!-- TODO(littledan): Redo this text in an acceptable way. -->
       1. Let _tag_ be the result of evaluating _ident_.
       1. Return ? Call(*undefined*, _tag_, _object_).
     </emu-alg>
@@ -84,24 +84,14 @@ contributors: Daniel Ehrenberg
         </tr>
         <tr>
           <td>
-            [[TemplateMap]]
-          </td>
-          <td>
-            A List of Record { [[Strings]]: List, [[Array]]: Object}.
-          </td>
-          <td>
-            Template objects are canonicalized separately for each realm using its Realm Record's [[TemplateMap]]. Each [[Strings]] value is a List containing, in source text order, the raw String values of a |TemplateLiteral| that has been evaluated. The associated [[Array]] value is the corresponding template object that is passed to a tag function.
-          </td>
-        </tr>
-        <tr>
-          <td>
             <ins>[[LiteralMap]]</ins>
           </td>
           <td>
-            <ins>A List of Record { [[String]]: String, [[Object]]: Object}.</ins>
+            <ins>A List of Record { [[Site]]: Parse Node, [[Object]]: Object}.</ins>
           </td>
           <td>
-            <ins>Literal objects are canonicalized separately for each realm using its Realm Record's [[TemplateMap]]. Each [[String]] value is a String of the source text for the numeric part of the |ExtendedNumericLiteral|. The associated [[Object]] value is the corresponding literal object that is passed to a tag function.</ins>
+           <ins>Literal objects are canonicalized separately for each realm using its Realm Record's [[TemplateMap]]. Each [[Site]] value is a Parse Node the numeric part of the |ExtendedNumericLiteral|. The associated [[Object]] value is the corresponding literal object that is passed to a numeric literal function.</ins>
+           <emu-note><ins>Once a Parse Node becomes unreachable, the corresponding [[Object]] is also unreachable, and it would be unobservable if an implementation removed the pair from the [[LiteralMap]] list.</ins></emu-note>
           </td>
         </tr>
         </tbody>

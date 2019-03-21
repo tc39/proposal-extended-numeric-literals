@@ -20,7 +20,7 @@ One side to all of these is operator overloading, and another side is the litera
 
 ### CSS Typed Object Model
 
-In the [CSS Typed Object Model](https://drafts.css-houdini.org/css-typed-om/#numeric-factory), there are objects which represent lengths in pixels, inches, and several other units. The current syntax for creating such an instance is `CSS.px(10)`. With this proposal, the syntax could instead be just like inside of CSS itself, as `10~px`. This is another case that would benefit from operator overloading, but also be useful without it.
+In the [CSS Typed Object Model](https://drafts.css-houdini.org/css-typed-om/#numeric-factory), there are objects which represent lengths in pixels, inches, and several other units. The current syntax for creating such an instance is `CSS.px(10)`. With this proposal, the syntax could instead be just like inside of CSS itself, as `10@px`. This is another case that would benefit from operator overloading, but also be useful without it.
 
 Example:
 
@@ -50,7 +50,7 @@ Whitespace is not permitted either before or after the `@` character; this restr
 In general, the numeric value is applied to the decorator in a way that's specific to which [built-in decorators](https://github.com/tc39/proposal-decorators/blob/master/README.md#the-idea) are invoked. In this initial proposal, only one built-in decorator is proposed which can operate on numeric literals: `@numericTemplate`. Future proposals may define others.
 
 `@numericTemplate` is designed in a way analogous to template literals: It lets a callback get called with an object which is fixed based on the callsite. The object has two own properties:
-- `string`: The literal source text preceding the `~`.
+- `string`: The literal source text preceding the `@`.
 - `number`: `string` interpreted as a literal Number. The parsed form is important for users like CSS Typed OM, which needs to avoid re-parsing for performance reasons.
 
 Example:

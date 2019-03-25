@@ -40,7 +40,7 @@ PrimaryExpression[Yield, Await] :
   ExtendedNumericLiteral
 
 ExtendedNumericLiteral ::
-  NumericLiteral `@` IdentifierName
+  NumericLiteral `@` IdentifierName Arguments_opt
 ```
 
 Whitespace is not permitted either before or after the `@` character; this restriction is encoded in the grammar by being part of the lexical, rather than syntactic, grammar (:: not :).

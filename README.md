@@ -40,7 +40,7 @@ PrimaryExpression[Yield, Await] :
   ExtendedNumericLiteral
 
 ExtendedNumericLiteral ::
-  NumericLiteral `@` IdentifierName
+  NumericLiteral `@` IdentifierName Arguments_opt
 ```
 
 Whitespace is not permitted either before or after the `@` character; this restriction is encoded in the grammar by being part of the lexical, rather than syntactic, grammar (:: not :).
@@ -53,21 +53,42 @@ In general, the numeric value is applied to the decorator in a way that's specif
 - `string`: The literal source text preceding the `@`.
 - `number`: `string` interpreted as a literal Number. The parsed form is important for users like CSS Typed OM, which needs to avoid re-parsing for performance reasons.
 
-Example:
+Example 1:
 
 ```js
 decorator @px {
   @numericTemplate(({ number }) => CSS.px(number))
 }
 
-3@px
+3@px;
 ```
 
 desugars into
 
 ```js
-let template = Object.freeze({number: 3, string: "3"});
-({ number }) => CSS.px(number))(template)
+let template = Object.freeze({ number: 3, string: "3" });
+(() => ({ number }) => CSS.px(number))()(template);
+```
+
+Example 2:
+
+```js
+decorator @unit (type = 'px') {
+  @numericTemplate(({ number }) => CSS[unit](number))
+}
+
+3@unit;
+3@unit('em');
+```
+
+desugars into
+
+```js
+let template1 = Object.freeze({ number: 3, string: "3" });
+((unit = 'px') => ({ number }) => CSS[unit](number))()(template1);
+
+let template2 = Object.freeze({ number: 3, string: "3" });
+((unit = 'px') => ({ number }) => CSS[unit](number))('em')(template2);
 ```
 
 ### Caching

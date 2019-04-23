@@ -73,7 +73,7 @@ let template = Object.freeze({ number: 3, string: "3" });
 Example 2:
 
 ```js
-decorator @unit (type = 'px') {
+decorator @unit (unit = 'px') {
   @numericTemplate(({ number }) => CSS[unit](number))
 }
 

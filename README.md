@@ -8,15 +8,15 @@ Champion: Daniel Ehrenberg
 
 ### Generalizing BigInt
 
-JavaScript contains two numeric type, [Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) and [BigInt](https://github.com/tc39/proposal-bigint). To differentiate the literal syntaxes, BigInts are written ending with an `n`, e.g., `19824359823509831298352352n`. In the case of BigInt, this is a one-off change to JavaScript grammar.
+JavaScript contains two numeric types, [Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) and [BigInt](https://github.com/tc39/proposal-bigint). To differentiate the literal syntaxes, BigInts are written ending with an `n`, e.g., `19824359823509831298352352n`. In the case of BigInt, this is a one-off change to JavaScript grammar.
 
-Other numeric types which may be added, either in JavaScript library code or eventually as a built-in:
+Other numeric types which may be added:
 - IEEE 754-2008 128-bit decimals
 - Arbitrary-precision decimals
 - Rationals
 - Complex numbers
 
-Part of the picture of generalizing built-in syntax is operator overloading; another part is custom numeric literal suffixes.
+The hope is that these could be added either built-in to the language *or* simply defined by JavaScript code, without using transpilers/tools. Part of the picture of generalizing built-in syntax is operator overloading; another part is custom numeric literal suffixes.
 
 Example custom numeric type:
 

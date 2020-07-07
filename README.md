@@ -1,4 +1,4 @@
-# Extended Numeric Literals
+# Numeric Literal Suffixes
 
 Stage 1
 
@@ -8,95 +8,118 @@ Champion: Daniel Ehrenberg
 
 ### Generalizing BigInt
 
-Currently, JavaScript contains just one numeric type, [Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number). A second type, [BigInt](https://github.com/tc39/proposal-bigint), is proposed. To differentiate the literal syntaxes, BigInts are written ending with an `n`, e.g., `19824359823509831298352352n`. In the case of BigInt, this is a one-off change to JavaScript grammar.
+JavaScript contains two numeric type, [Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) and [BigInt](https://github.com/tc39/proposal-bigint). To differentiate the literal syntaxes, BigInts are written ending with an `n`, e.g., `19824359823509831298352352n`. In the case of BigInt, this is a one-off change to JavaScript grammar.
 
 Other numeric types which may be added, either in JavaScript library code or eventually as a built-in:
-- IEEE 754-2008 64-bit decimals
+- IEEE 754-2008 128-bit decimals
 - Arbitrary-precision decimals
 - Rationals
 - Complex numbers
 
-One side to all of these is operator overloading, and another side is the literal syntax. In some small code samples, it seems like using extended literals, together with methods for arithmetic operators, might not be such a bad middle point, until more is worked out.
+Part of the picture of generalizing built-in syntax is operator overloading; another part is custom numeric literal suffixes.
+
+Example custom numeric type:
+
+```js
+import { Decimal } from "./my-decimal-package.mjs";
+
+with suffix $ = Decimal.literal;
+(2.1$).plus(3.2$) // ==> 5.3$
+```
 
 ### CSS Typed Object Model
 
-In the [CSS Typed Object Model](https://drafts.css-houdini.org/css-typed-om/#numeric-factory), there are objects which represent lengths in pixels, inches, and several other units. The current syntax for creating such an instance is `CSS.px(10)`. With this proposal, the syntax could instead be just like inside of CSS itself, as `10@px`. This is another case that would benefit from operator overloading, but also be useful without it.
+In the [CSS Typed Object Model](https://drafts.css-houdini.org/css-typed-om/#numeric-factory), there are objects which represent lengths in pixels, inches, and several other units. The current syntax for creating such an instance is `CSS.px(10)`. With this proposal, the syntax could instead be just like inside of CSS itself, as `10px`.
+
+This is another case that would benefit from operator overloading, but also be useful without it.
+
+Because CSS is built-in to the web environment, this example assumes that the environment makes it present in the default outer scope.
 
 Example:
 
 ```js
-import { @px } from "@std/css";
-
-document.querySelector("#foo").style.fontSize = 3@px;
+document.querySelector("#foo").style.fontSize = 3px;
 ```
 
 ## Proposed syntax
 
-Numeric literals have the syntax of a Number followed by [decorator](https://github.com/tc39/proposal-decorators/) with no arguments. The numeric decorator's name uses the `@ IdentifierName` grammar, just like decorators in other cases.
+Numeric literals have the syntax of a Number followed by a restricted kind of identifier. The identifier must begin with a character which is never present in a valid NumericLiteral.
 
 ```
-PrimaryExpression[Yield, Await] :
-  ...
-  ExtendedNumericLiteral
+NumericLiteral ::
+  DecimalLiteral
+  DecimalLiteral SuffixIdentifier
+  NonDecimalIntegerLiteral
+  NonDecimalIntegerLiteral SuffixIdentifier
 
-ExtendedNumericLiteral ::
-  NumericLiteral `@` IdentifierName Arguments_opt
+SuffixIdentifier ::
+  SuffixIdentifierStart IdentifierPart
+
+SuffixIdentifierStart ::
+  UnicodeIDStart but not one of HexDigit or o x O X
+  $
+
+LexicalDeclaration :
+  LetOrConst BindingList
+  SuffixDeclaration
+
+SuffixDeclaration :
+  with suffix SuffixIdentifier Initializer
 ```
 
-Whitespace is not permitted either before or after the `@` character; this restriction is encoded in the grammar by being part of the lexical, rather than syntactic, grammar (:: not :).
+Whitespace is not permitted between the |NumericLiteral| and the |SuffixIdentifier|. this restriction is encoded in the grammar by being part of the lexical, rather than syntactic, grammar (:: not :). Note that `_` is not a member of UnicodeIDStart.
+
+Early errors for particular built-in numeric suffixes like `n` are still in place, but only trigger if that suffix is not shadowed by a user-defined numeric literal suffix. Non-built-in numeric literal suffixes can instead use runtime errors when they're evaluated.
+
+## Scoping
+
+Numeric literal suffixes live in a parallel lexical scope. Entries can be created in the scope with a `SuffixDeclaration`, of the form `with suffix s = expression`. Usages in numeric literals refer to one of those suffixes in the current or outer scope.
+
+When importing a suffix from a module, the normal lexical scope is used. A single line in the importing module can be used to declare it in the current scope. A future proposal could allow direct exports/imports in the suffix namespace, but this proposal omits that capability, as it does not seem worth the cost of the added complexity.
 
 ## Semantics
 
-In general, the numeric value is applied to the decorator in a way that's specific to which [built-in decorators](https://github.com/tc39/proposal-decorators/blob/master/README.md#the-idea) are invoked. In this initial proposal, only one built-in decorator is proposed which can operate on numeric literals: `@numericTemplate`. Future proposals may define others.
-
-`@numericTemplate` is designed in a way analogous to template literals: It lets a callback get called with an object which is fixed based on the callsite. The object has two own properties:
-- `string`: The literal source text preceding the `@`.
+User-defined numeric literal suffixes are designed in a way analogous to template literals: they are called with an object which is fixed based on the callsite. The object has two own properties:
+- `string`: The literal source text preceding the suffix.
 - `number`: `string` interpreted as a literal Number. The parsed form is important for users like CSS Typed OM, which needs to avoid re-parsing for performance reasons.
 
-Example 1:
+Here's a fully functioning polyfill for the hypothetical CSS `px` literal suffix:
 
 ```js
-decorator @px {
-  @numericTemplate(({ number }) => CSS.px(number))
+function pxSuffix({number}) {
+  return CSS.px(number)
 }
 
-3@px;
+with suffix px = pxSuffix;
+
+3px;
 ```
 
-desugars into
+The last line desugars into:
 
 ```js
 let template = Object.freeze({ number: 3, string: "3" });
-(() => ({ number }) => CSS.px(number))()(template);
-```
-
-Example 2:
-
-```js
-decorator @unit (unit = 'px') {
-  @numericTemplate(({ number }) => CSS[unit](number))
-}
-
-3@unit;
-3@unit('em');
-```
-
-desugars into
-
-```js
-let template1 = Object.freeze({ number: 3, string: "3" });
-((unit = 'px') => ({ number }) => CSS[unit](number))()(template1);
-
-let template2 = Object.freeze({ number: 3, string: "3" });
-((unit = 'px') => ({ number }) => CSS[unit](number))('em')(template2);
+pxSuffix(template);
 ```
 
 ### Caching
 
-The object which is passed into `@numericTemplate`'s function is cached such that multiple executions of the same code will have the same object passed into the extended literal function. This can be useful for literals which require an expensive calculation to parse: the object can be used as a key in a WeakMap associating it with a pre-calculated value.
+The object which is passed into the suffix function is cached such that multiple executions of the same code will have the same object passed into the extended literal function. This can be useful for literals which require an expensive calculation to parse: the object can be used as a key in a WeakMap associating it with a pre-calculated value.
 
 Analogous to the semantics recently adopted template string literals ([PR](https://github.com/tc39/ecma262/pull/890)), extended numeric literal objects are cached by source position, rather than the contents of the numeric literal.
 
-## Future potential built-in decorators for numeric types
+Using this caching logic, the `px` polyfill can be optimized to avoid creating a new object each time:
 
-For Numbers and BigInts, the JavaScript parser is generally able to parse and cache the numeric value when generating bytecode. Future built-in decorators for built-in numeric types would hopefully also be statically analyzable enough to permit this early processing as well.
+```js
+const cache = new WeakMap();
+function pxSuffix(obj) {
+  if (cache.has(obj)) return cache.get(obj);
+  const px = Object.freeze(CSS.px(obj.number));
+  cache.set(obj, px);
+  return px;
+}
+```
+
+### Status
+
+This proposal is at Stage 1 in TC39. The new version using a separate namespace for suffixes has not yet been presented to committee.

@@ -1,6 +1,6 @@
 # Numeric Literal Suffixes
 
-Stage 1
+Status: **[Withdrawn](https://github.com/tc39/proposals/commit/223cd3a66280000210689b11210c2ad6dbe2ad29)**
 
 Champion: Daniel Ehrenberg
 
